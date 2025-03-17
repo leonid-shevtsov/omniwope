@@ -1,0 +1,36 @@
+{{- $sectionName := "myposts" -}}
+{{- $tagsTermsName := "tags" -}}
+
+{{- $pages := (index (where .Site.Sections "Section" "eq" $sectionName) 0).Pages -}}
+
+{{- $data := slice -}}
+
+{{- range $page := $pages -}}
+  {{- $tags := slice -}}
+  {{- range  (.GetTerms $tagsTermsName) -}}
+    {{ $tags = $tags | append .Data.Term }}
+  {{- end -}}
+
+  {{- $resources := slice -}}
+  {{- range .Resources -}}
+    {{- $resourcePath := (path.Join (path.Dir $page.File.Path) .Name) -}}
+    {{- $resourceInfo := dict
+      "path" $resourcePath
+      "type" .ResourceType
+      "label" .Params.caption
+    }}
+    {{- $resources = $resources | append $resourceInfo  -}}
+  {{- end -}}
+
+  {{- $pageData := dict
+    "url" .Permalink
+    "title" .Title
+    "date" .Date
+    "content" (strings.TrimPrefix "\n" .RawContent)
+    "tags" $tags
+    "resources" $resources
+    -}}
+  {{- $data = $data | append  $pageData -}}
+{{- end -}}
+
+{{- $data | jsonify  (dict "indent" "  ") -}}

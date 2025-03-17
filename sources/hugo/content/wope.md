@@ -1,0 +1,5 @@
+---
+layout: "wope"
+outputs:
+  - JSON
+---

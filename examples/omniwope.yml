@@ -1,0 +1,16 @@
+verbose: true
+dry_run: true
+# Location of the input file
+input: public/wope.json
+relref:
+  pattern:  "https://myblog.com/post/%s/"
+# Path to the blog resources to read media from
+resources:
+  base_path: content
+# Location of the store. Keep it safe!
+# It contains the bindings of your posts to the outputs.
+store:
+  path: store.json
+# Configuration of the outputs
+tg:
+  channel: mychannel_name
