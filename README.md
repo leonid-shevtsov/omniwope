@@ -8,11 +8,11 @@ The source of truth should be a site that you own. Any source is supported as lo
 
 From there, you run the tool after publishing the next article to the blog and it takes care of rebroadcasting it to every configured Output.
 
-## Supported Inputs
+## Supported Sources
 
 - [Hugo](sources/hugo/README.md)
 
-_Adding an input is as easy as generating JSON of the [input structure](docs/input_structure.md). PRs are welcome!_
+_Adding a source is as easy as generating JSON of the [input structure](docs/input_structure.md). PRs are welcome!_
 
 ## Supported Outputs
 
