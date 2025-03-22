@@ -14,3 +14,7 @@ store:
 # Configuration of the outputs
 tg:
   channel: mychannel_name
+mastodon:
+  instance_url: https://mastodon.social
+  visibility: public
+  language: en

@@ -17,6 +17,7 @@ _Adding a source is as easy as generating JSON of the [input structure](docs/inp
 ## Supported Outputs
 
 - [Telegram channel](docs/tg.md)
+- [Mastodon](docs/mastodon.md) or API-compatible services (GoToSocial and more)
 
 ## How to run
 
