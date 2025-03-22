@@ -2,13 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"strings"
 
-	"github.com/leonid-shevtsov/omniwope/internal/config"
-	"github.com/leonid-shevtsov/omniwope/internal/output"
-	"github.com/leonid-shevtsov/omniwope/internal/store"
+	"github.com/leonid-shevtsov/omniwope/internal/wope"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -19,55 +16,8 @@ var rootCmd = &cobra.Command{
 	Long:  `Omniwope - Write Once Publish Everywhere`,
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		config := config.Read(viper.GetViper())
-
-		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level: config.LogLevel,
-		})))
-
-		outputs, err := output.BuildOutputs(viper.GetViper(), config)
-		if err != nil {
-			panic(err)
-		}
-		slog.Debug("Initialized outputs", "output_count", len(outputs))
-
-		checksumStore, err := config.StoreProvider.GetKV("checksums")
-		if err != nil {
-			panic(err)
-		}
-
-		for _, post := range config.Content {
-			checksum := post.Checksum()
-			storedChecksum, _, err := store.Get[string](checksumStore, post.URL)
-			if err != nil {
-				panic(err)
-			}
-			if storedChecksum == checksum {
-				// post did not change
-				continue
-			}
-
-			for _, output := range outputs {
-				err := output.Submit(&post)
-				if err != nil {
-					panic(err)
-				}
-			}
-
-			if !config.DryRun {
-				err = store.Set(checksumStore, post.URL, checksum)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-
-		for _, output := range outputs {
-			output.Close()
-		}
-
-		slog.Info("All done")
-
+		service := wope.Service{}
+		service.Execute()
 	},
 }
 

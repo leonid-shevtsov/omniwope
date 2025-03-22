@@ -14,7 +14,7 @@ type Config struct {
 func Read(viper *viper.Viper) *Config {
 	credentials := viper.GetString("tg.credentials")
 	channel := "@" + strings.TrimLeft(viper.GetString("tg.channel"), "@")
-	if credentials == "" || channel == "" {
+	if credentials == "" || channel == "@" {
 		return nil
 	}
 
