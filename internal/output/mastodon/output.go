@@ -45,6 +45,10 @@ func NewOutput(config *config.Config, mastoConfig *mastoConfig.Config) (*Output,
 	return output, nil
 }
 
+func (o *Output) Name() string {
+	return "mastodon"
+}
+
 func (o *Output) Close() {
 	// noop: does not need closing
 }

@@ -66,6 +66,10 @@ func NewOutput(config *config.Config, tgConfig *tgConfig.Config) (*Output, error
 	return output, nil
 }
 
+func (o *Output) Name() string {
+	return "tg"
+}
+
 func (o *Output) Close() {
 	// noop: does not need closing
 }

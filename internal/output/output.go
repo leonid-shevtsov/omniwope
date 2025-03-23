@@ -1,6 +1,8 @@
 package output
 
 import (
+	"time"
+
 	"github.com/leonid-shevtsov/omniwope/internal/config"
 	"github.com/leonid-shevtsov/omniwope/internal/content"
 	"github.com/leonid-shevtsov/omniwope/internal/output/mastodon"
@@ -11,12 +13,18 @@ import (
 )
 
 type Output interface {
+	Name() string
 	Submit(post *content.Post) error
 	Close()
 }
 
-func BuildOutputs(viper *viper.Viper, config *config.Config) ([]Output, error) {
-	var outputs []Output
+type OutputConfig struct {
+	Output
+	StartDate time.Time
+}
+
+func BuildOutputs(viper *viper.Viper, config *config.Config) ([]OutputConfig, error) {
+	var outputs []OutputConfig
 
 	if tgConfig := tgConfig.Read(viper); tgConfig != nil {
 		tgOutput, err := tg.NewOutput(config, tgConfig)
@@ -24,7 +32,10 @@ func BuildOutputs(viper *viper.Viper, config *config.Config) ([]Output, error) {
 			return nil, err
 		}
 
-		outputs = append(outputs, tgOutput)
+		outputs = append(outputs, OutputConfig{
+			Output:    tgOutput,
+			StartDate: viper.GetTime("tg.start_date"),
+		})
 	}
 
 	if mastoConfig := mastoConfig.Read(viper); mastoConfig != nil {
@@ -33,7 +44,10 @@ func BuildOutputs(viper *viper.Viper, config *config.Config) ([]Output, error) {
 			return nil, err
 		}
 
-		outputs = append(outputs, mastoOutput)
+		outputs = append(outputs, OutputConfig{
+			Output:    mastoOutput,
+			StartDate: viper.GetTime("mastodon.start_date"),
+		})
 	}
 
 	return outputs, nil

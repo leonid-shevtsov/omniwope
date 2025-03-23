@@ -23,22 +23,37 @@ func (o *Output) Submit(post *content.Post) error {
 
 	contents := "# " + post.Title + "\n\n" + post.Content
 
-	statusID, err := o.client.CreateStatus(api.CreateStatusRequest{
-		Status:      string(contents),
-		Visibility:  o.mastoConfig.Visibility,
-		Language:    o.mastoConfig.Language,
-		ContentType: "text/markdown",
-		Federated:   true,
-		Boostable:   true,
-		Replyable:   true,
-		Likeable:    true,
-	})
-	if err != nil {
-		return err
+	// TODO: handle resources
+
+	var statusID string
+
+	if !exists {
+		// create status
+		statusID, err = o.client.CreateStatus(api.CreateStatusRequest{
+			Status:      string(contents),
+			Visibility:  o.mastoConfig.Visibility,
+			Language:    o.mastoConfig.Language,
+			ContentType: "text/markdown",
+			Federated:   true,
+			Boostable:   true,
+			Replyable:   true,
+			Likeable:    true,
+		})
+		if err != nil {
+			return err
+		}
+	} else {
+		// update status
+		statusID = existingPost.ID
+		err = o.client.UpdateStatus(statusID, api.UpdateStatusRequest{
+			Status:      string(contents),
+			Language:    o.mastoConfig.Language,
+			ContentType: "text/markdown",
+		})
+		if err != nil {
+			return err
+		}
 	}
-
-	// TODO: publish resources
-
 	err = store.Set(o.store, post.URL, Post{
 		ID:               statusID,
 		RenderedChecksum: checksum.Sum([]byte(contents)),
@@ -48,5 +63,4 @@ func (o *Output) Submit(post *content.Post) error {
 		return err
 	}
 	return nil
-
 }

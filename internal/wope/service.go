@@ -44,6 +44,11 @@ func (s *Service) Execute() {
 		}
 
 		for _, output := range outputs {
+			if !output.StartDate.IsZero() && output.StartDate.After(post.Date) {
+				slog.Debug("Skipping post because of start date", "post", post.URL, "output", output.Name())
+				continue
+			}
+
 			err := output.Submit(&post)
 			if err != nil {
 				panic(err)
