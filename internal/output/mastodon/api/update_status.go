@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type UpdateStatusRequest struct {
 	Status      string   `json:"status"`
 	MediaIDs    []string `json:"media_ids,omitempty"`
-	Language    string   `json:"language"`
-	ContentType string   `json:"content_type"`
+	Language    string   `json:"language,omitempty"`
+	ContentType string   `json:"content_type,omitempty"`
 }
 
 // https://docs.joinmastodon.org/methods/statuses/#edit
@@ -36,6 +37,10 @@ func (c *Client) UpdateStatus(id string, payload UpdateStatusRequest) error {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return fmt.Errorf("failed to read response body: %w", err)
+		}
+		if resp.StatusCode == http.StatusUnprocessableEntity && strings.Contains(string(body), "status was not changed") {
+			// status remained the same, so the request technically succeeded
+			return nil
 		}
 		panic(fmt.Errorf("bad status code: %s %s", resp.Status, body))
 	}
