@@ -2,7 +2,9 @@ package mastodon
 
 import (
 	"bytes"
+	"io"
 	"log/slog"
+	"path"
 
 	"github.com/leonid-shevtsov/omniwope/internal/checksum"
 	"github.com/leonid-shevtsov/omniwope/internal/content"
@@ -33,7 +35,14 @@ func (o *Output) Submit(post *content.Post) error {
 		return err
 	}
 
-	contents := "# " + post.Title + "\n\n" + string(linkparser.UndoRefs(buf.Bytes()))
+	body := string(linkparser.UndoRefs(buf.Bytes()))
+
+	if len(post.Resources) > 0 {
+		// Prepend the informal "thread marker"
+		body = "1/ " + body
+	}
+
+	contents := "# " + post.Title + "\n\n" + body
 
 	if len(post.Tags) > 0 {
 		contents += "\n\n"
@@ -45,8 +54,6 @@ func (o *Output) Submit(post *content.Post) error {
 		}
 		contents += "\n"
 	}
-
-	// TODO: handle resources
 
 	if !exists {
 		// create status
@@ -66,6 +73,13 @@ func (o *Output) Submit(post *content.Post) error {
 		mastoPost.ID = response.ID
 		mastoPost.URL = response.URL
 		mastoPost.Version = VERSION
+
+		if len(post.Resources) > 0 {
+			err = o.submitResource(post, mastoPost.ID)
+			if err != nil {
+				slog.Warn("failed to submit image resource", "err", err)
+			}
+		}
 	} else {
 		// update status
 		err = o.client.UpdateStatus(mastoPost.ID, api.UpdateStatusRequest{
@@ -82,5 +96,78 @@ func (o *Output) Submit(post *content.Post) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (o *Output) submitResource(post *content.Post, inReplyToID string) error {
+	// TODO: allow posting more than 1 image
+	resource := post.Resources[0]
+	// For now we consider only resource per post, so store key is just the post URL
+	mastoPost, exists, err := store.Get[Post](o.resourceStore, post.URL)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		reader, err := o.config.GetResource(resource.Path)
+		if err != nil {
+			return err
+		}
+		defer reader.Close()
+
+		imageName := path.Base(resource.Path)
+		imageBytes, err := io.ReadAll(reader)
+		if err != nil {
+			return err
+		}
+
+		var buf bytes.Buffer
+		if err := o.md.Convert([]byte(resource.Label), &buf); err != nil {
+			return err
+		}
+
+		// 2/ is the informal "thread marker"
+		caption := "2/ " + buf.String()
+
+		if o.config.DryRun {
+			slog.Info("mastodon: would post image", "image_path", resource.Path, "caption", caption)
+			return nil
+		}
+
+		mediaID, err := o.client.CreateMedia(imageName, resource.MediaType, imageBytes)
+		if err != nil {
+			return err
+		}
+
+		response, err := o.client.CreateStatus(api.CreateStatusRequest{
+			Status:      string(caption),
+			MediaIDs:    []string{mediaID},
+			InReplyToID: inReplyToID,
+			Visibility:  o.mastoConfig.Visibility,
+			Language:    o.mastoConfig.Language,
+			ContentType: "text/markdown",
+			Federated:   true,
+			Boostable:   true,
+			Replyable:   true,
+			Likeable:    true,
+		})
+		if err != nil {
+			return err
+		}
+
+		mastoPost.ID = response.ID
+		mastoPost.URL = response.URL
+		mastoPost.Version = VERSION
+		mastoPost.RenderedChecksum = checksum.Sum([]byte(caption)) + ":" + checksum.Sum(imageBytes)
+	} else {
+		// TODO update resource (not implemented)
+		slog.Info("mastodon: updating resource is not implemented")
+	}
+
+	err = store.Set(o.resourceStore, post.URL, mastoPost)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

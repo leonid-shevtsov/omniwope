@@ -17,6 +17,7 @@
     {{- $resourceInfo := dict
       "path" $resourcePath
       "type" .ResourceType
+      "media_type" .MediaType.Type
       "label" .Params.caption
     }}
     {{- $resources = $resources | append $resourceInfo  -}}

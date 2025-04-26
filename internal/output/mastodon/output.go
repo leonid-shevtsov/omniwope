@@ -21,15 +21,21 @@ const VERSION = 1
 // TODO: list specific endpoints
 // TODO: list specific servers
 type Output struct {
-	store       store.KV
-	config      *config.Config
-	mastoConfig *mastoConfig.Config
-	client      *api.Client
-	md          goldmark.Markdown
+	store         store.KV
+	resourceStore store.KV
+	config        *config.Config
+	mastoConfig   *mastoConfig.Config
+	client        *api.Client
+	md            goldmark.Markdown
 }
 
 func NewOutput(config *config.Config, mastoConfig *mastoConfig.Config) (*Output, error) {
 	store, err := config.StoreProvider.GetKV("mastodon")
+	if err != nil {
+		return nil, err
+	}
+
+	resourceStore, err := config.StoreProvider.GetKV("mastodon_resource_statuses")
 	if err != nil {
 		return nil, err
 	}
@@ -42,10 +48,11 @@ func NewOutput(config *config.Config, mastoConfig *mastoConfig.Config) (*Output,
 	slog.Debug("mastodon: setup successful", "account", account.Acct, "url", account.URL)
 
 	output := &Output{
-		store:       store,
-		config:      config,
-		mastoConfig: mastoConfig,
-		client:      client,
+		store:         store,
+		resourceStore: resourceStore,
+		config:        config,
+		mastoConfig:   mastoConfig,
+		client:        client,
 	}
 	output.buildMarkdown()
 

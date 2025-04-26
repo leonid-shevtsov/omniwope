@@ -21,9 +21,14 @@ const resourceTypeImage = "image"
 const resourceTypeVideo = "video"
 
 type Resource struct {
+	// Label (Markdown allowed)
 	Label string `json:"label"`
-	Path  string `json:"path"`
-	Type  string `json:"type"`
+	// Path to the resource contents on disk
+	Path string `json:"path"`
+	// Simplified type (currently "image" or "video" is supported)
+	Type string `json:"type"`
+	// Media type, also known as MIME type, such as image/jpeg
+	MediaType string `json:"media_type"`
 }
 
 // For now just do a plain JSON encoding.

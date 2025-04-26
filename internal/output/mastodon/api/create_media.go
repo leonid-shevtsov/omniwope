@@ -7,6 +7,8 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
+	"strings"
 )
 
 type mediaResponse struct {
@@ -14,10 +16,18 @@ type mediaResponse struct {
 }
 
 // https://docs.joinmastodon.org/methods/media/#v2
-func (c *Client) CreateMedia(filename string, contents []byte) (string, error) {
+func (c *Client) CreateMedia(filename string, contentType string, contents []byte) (string, error) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
-	fileWriter, err := writer.CreateFormFile("file", filename)
+
+	// adapted from multipart.Writer#CreateFormFile
+	// how else to create a file part with a proper content type?
+	// this SO answer agrees: https://stackoverflow.com/a/21133168/6678
+	header := make(textproto.MIMEHeader)
+	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, escapeQuotes(filename)))
+	header.Set("Content-Type", contentType)
+
+	fileWriter, err := writer.CreatePart(header)
 	if err != nil {
 		return "", fmt.Errorf("failed to open form writer: %w", err)
 	}
@@ -57,4 +67,11 @@ func (c *Client) CreateMedia(filename string, contents []byte) (string, error) {
 	}
 
 	return mediaResponse.ID, nil
+}
+
+// copied from mime/multipart package
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
 }
