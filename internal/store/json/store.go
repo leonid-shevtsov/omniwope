@@ -93,8 +93,7 @@ func (p *KVProvider) readInData() error {
 }
 
 func (p *KVProvider) writeData() error {
-
-	storeContents, err := json.Marshal(p.data)
+	storeContents, err := json.MarshalIndent(p.data, "", "  ")
 	if err != nil {
 		return err
 	}
