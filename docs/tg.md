@@ -12,3 +12,17 @@ Publishes into a [Telegram](https://telegram.org) channel.
     channel: mychannel_name
   ```
 - Now you are ready to post.
+
+## Additional settings
+
+### Footer
+
+You can add a footer that will be appended to every post at the bottom:
+
+```yml
+tg:
+  channel: mychannel_name
+  footer: "---\n*Visit my blog at example.com*"
+```
+
+The footer will be added at the bottom of each post with a newline before it. It supports markdown formatting.

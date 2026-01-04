@@ -15,7 +15,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-const VERSION = 2
+const VERSION = 3
 
 type Output struct {
 	bot           *tgbotapi.BotAPI
@@ -25,6 +25,7 @@ type Output struct {
 	channelName   string
 	config        *config.Config
 	md            goldmark.Markdown
+	footer        string
 }
 
 func NewOutput(config *config.Config, tgConfig *tgConfig.Config) (*Output, error) {
@@ -60,6 +61,7 @@ func NewOutput(config *config.Config, tgConfig *tgConfig.Config) (*Output, error
 		store:         store,
 		resourceStore: resourceStore,
 		config:        config,
+		footer:        tgConfig.Footer,
 	}
 	output.buildMarkdown()
 

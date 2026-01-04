@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Credentials string
 	ChannelName string
+	Footer      string
 }
 
 func Read(viper *viper.Viper) *Config {
@@ -21,5 +22,6 @@ func Read(viper *viper.Viper) *Config {
 	return &Config{
 		Credentials: credentials,
 		ChannelName: channel,
+		Footer:      viper.GetString("tg.footer"),
 	}
 }

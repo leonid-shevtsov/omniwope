@@ -46,6 +46,15 @@ func (o *Output) Submit(post *content.Post) error {
 	}
 	contents = fmt.Sprintf("%s\n%s", titleOutBuf.String(), contents)
 
+	// Append footer if configured
+	if o.footer != "" {
+		var footerBuf bytes.Buffer
+		if err := o.md.Convert([]byte(o.footer), &footerBuf); err != nil {
+			return err
+		}
+		contents = fmt.Sprintf("%s\n%s", contents, footerBuf.String())
+	}
+
 	// Currently the resource is posted separately
 	if len(post.Resources) > 0 {
 		err := o.submitResource(post)
