@@ -3,7 +3,7 @@ dry_run: true
 # Location of the input file
 input: public/wope.json
 relref:
-  pattern:  "https://myblog.com/post/%s/"
+  pattern: "https://myblog.com/post/%s/"
 # Path to the blog resources to read media from
 resources:
   base_path: content
@@ -20,3 +20,7 @@ mastodon:
   instance_url: https://mastodon.social
   visibility: public
   language: en
+discord:
+  channel: https://discord.com/channels/123456789012345678/987654321098765432
+  # Set `start_date` to avoid publishing old posts.
+  start_date: 2025-01-01

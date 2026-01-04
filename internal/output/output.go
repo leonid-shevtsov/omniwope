@@ -5,6 +5,8 @@ import (
 
 	"github.com/leonid-shevtsov/omniwope/internal/config"
 	"github.com/leonid-shevtsov/omniwope/internal/content"
+	"github.com/leonid-shevtsov/omniwope/internal/output/discord"
+	discordConfig "github.com/leonid-shevtsov/omniwope/internal/output/discord/config"
 	"github.com/leonid-shevtsov/omniwope/internal/output/mastodon"
 	mastoConfig "github.com/leonid-shevtsov/omniwope/internal/output/mastodon/config"
 	"github.com/leonid-shevtsov/omniwope/internal/output/tg"
@@ -47,6 +49,18 @@ func BuildOutputs(viper *viper.Viper, config *config.Config) ([]OutputConfig, er
 		outputs = append(outputs, OutputConfig{
 			Output:    mastoOutput,
 			StartDate: viper.GetTime("mastodon.start_date"),
+		})
+	}
+
+	if discordConfig := discordConfig.Read(viper); discordConfig != nil {
+		discordOutput, err := discord.NewOutput(config, discordConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs = append(outputs, OutputConfig{
+			Output:    discordOutput,
+			StartDate: viper.GetTime("discord.start_date"),
 		})
 	}
 

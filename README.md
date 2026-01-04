@@ -18,6 +18,7 @@ _Adding a source is as easy as generating JSON of the [input structure](docs/inp
 
 - [Mastodon](docs/mastodon.md) or API-compatible services (GoToSocial and more)
 - [Telegram channel](docs/tg.md)
+- [Discord channel](docs/discord.md)
 
 ## How to run
 
@@ -43,6 +44,7 @@ Flags:
 /internal
   /output - implementations of outputs
     /tg - Telegram
+    /discord - Discord
   /store - implementations of the data store
     /json - JSON store
 /sources - guides to retrieve input
