@@ -1,8 +1,10 @@
+![OmniWOPE Banner](banner.png)
+
 # OmniWOPE
 
 _Write Once, Post Everywhere_
 
-This tool lets you publish the content of your blog to various platforms. This helps you reach your readers without forcing them to use a specific
+This tool lets you publish the content of your blog to various platforms. This helps you reach your readers without forcing them to use a specific one.
 
 The source of truth should be a site that you own. Any source is supported as long as you can export the articles into a special JSON file.
 
