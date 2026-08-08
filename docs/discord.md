@@ -96,7 +96,6 @@ If you get a "forbidden: bot lacks permissions to access channel" error:
 1. **Check server-level permissions**: Make sure the bot was invited with all required permissions listed above.
 
 2. **Check channel-specific permissions**:
-
    - Go to the channel settings (right-click channel → Edit Channel)
    - Go to the "Permissions" tab
    - Find your bot's role in the list

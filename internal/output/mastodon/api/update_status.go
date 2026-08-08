@@ -3,11 +3,14 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 )
+
+var ErrStatusNotFound = errors.New("status not found")
 
 type UpdateStatusRequest struct {
 	Status      string   `json:"status"`
@@ -33,16 +36,21 @@ func (c *Client) UpdateStatus(id string, payload UpdateStatusRequest) error {
 	if err != nil {
 		return fmt.Errorf("failed to perform request: %w", err)
 	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return fmt.Errorf("failed to read response body: %w", err)
 		}
+		if resp.StatusCode == http.StatusNotFound {
+			return fmt.Errorf("%w: %s", ErrStatusNotFound, body)
+		}
 		if resp.StatusCode == http.StatusUnprocessableEntity && strings.Contains(string(body), "status was not changed") {
 			// status remained the same, so the request technically succeeded
 			return nil
 		}
-		panic(fmt.Errorf("bad status code: %s %s", resp.Status, body))
+		return fmt.Errorf("bad status code: %s %s", resp.Status, body)
 	}
 
 	return nil

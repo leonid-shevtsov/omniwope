@@ -2,6 +2,7 @@ package mastodon
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"log/slog"
 	"path"
@@ -88,6 +89,10 @@ func (o *Output) Submit(post *content.Post) error {
 			ContentType: "text/markdown",
 		})
 		if err != nil {
+			if errors.Is(err, api.ErrStatusNotFound) {
+				slog.Warn("mastodon: status not found - skipping update", "url", post.URL, "status_id", mastoPost.ID)
+				return nil
+			}
 			return err
 		}
 	}
