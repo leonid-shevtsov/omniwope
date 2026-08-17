@@ -18,7 +18,7 @@ _Adding a source is as easy as generating JSON of the [input structure](docs/inp
 
 ## Supported Outputs
 
-- [Mastodon](docs/mastodon.md) or API-compatible services (GoToSocial and more)
+- [Mastodon](docs/mastodon.md) or API-compatible services (GoToSocial and more) — access token needs `write:media` to post images
 - [Telegram channel](docs/tg.md)
 - [Discord channel](docs/discord.md)
 

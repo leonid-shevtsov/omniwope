@@ -3,8 +3,8 @@
 Publishes into a [Mastodon](https://joinmastodon.org) account.
 
 - Create an account.
-- Obtain authorization token - you can use [GetAuth for Mastodon](https://getauth.thms.uk/?scopes=read+write:statuses&client_name=OmniWOPE).
-- Set `OMNIWOPE_MASTODON_ACCESS_TOKEN` environment variable to the access toekn
+- Obtain authorization token - you can use [GetAuth for Mastodon](https://getauth.thms.uk/?scopes=read+write:statuses+write:media&client_name=OmniWOPE). Scopes: `read`, `write:statuses`, and `write:media` (needed to post images).
+- Set `OMNIWOPE_MASTODON_ACCESS_TOKEN` environment variable to the access token
 - In `omniwope.yml`, set the instance URL and other configuration options:
   ```yml
   mastodon:
